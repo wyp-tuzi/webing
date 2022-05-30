@@ -1,0 +1,70 @@
+{
+    "tableData": [
+        {
+            "name": "张三",
+            "grade": "2009级",
+            "department": "外国语学院",
+            "major": "英语",
+            "sex": "女",
+            "workPlace": "武汉东西湖区",
+            "tel": "1234567890",
+            "salary": 8000,
+            "position": "114.13, 30.62"
+        },
+        {
+            "name": "李四",
+            "grade": "2009级",
+            "department": "外国语学院",
+            "major": "泰语",
+            "sex": "女",
+            "workPlace": "武汉洪山区",
+            "tel": "1234567812",
+            "salary": 7500,
+            "position": "114.33, 30.50"
+        },
+        {
+            "name": "王五",
+            "grade": "2010级",
+            "department": "经管学院",
+            "major": "旅游管理",
+            "sex": "男",
+            "workPlace": "武汉汉阳区",
+            "tel": "1234556879",
+            "salary": 6500,
+            "position": "114.27, 30.55"
+        },
+        {
+            "name": "严七",
+            "grade": "2009级",
+            "department": "经管学院",
+            "major": "公共管理",
+            "sex": "男",
+            "workPlace": "武汉武昌区",
+            "tel": "1314235678",
+            "salary": 5000,
+            "position": "114.30, 30.57"
+        },
+        {
+            "name": "赵四",
+            "grade": "2011级",
+            "department": "汉语学院",
+            "major": "对外汉语",
+            "sex": "男",
+            "workPlace": "武汉江夏区",
+            "tel": "1234512389",
+            "salary": 10000,
+            "position": "114.32, 30.35"
+        },
+        {
+            "name": "赵六",
+            "grade": "2010级",
+            "department": "汉语学院",
+            "major": "新闻",
+            "sex": "女",
+            "workPlace": "武汉蔡甸区",
+            "tel": "1234567897",
+            "salary": 3500,
+            "position": "114.03, 30.58"
+        }
+    ]
+}
