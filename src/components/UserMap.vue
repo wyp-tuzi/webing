@@ -1,24 +1,24 @@
 <template>
   <div class="mapbox">
-    <baidu-map class="map" @ready="handler" @mousemove="handMouseMove" center="武汉" :zoom="12" :map-click="false">
+    <baidu-map class="map" @ready="handler" @mousemove="handMouseMove"  center="武汉" :zoom="12" :map-click="false">
       <bm-scale anchor="BMAP_ANCHOR_BOTTOM_RIGHT"></bm-scale>
       <bm-navigation anchor="BMAP_ANCHOR_TOP_RIGHT"></bm-navigation>
       <bm-city-list anchor="BMAP_ANCHOR_TOP_LEFT"></bm-city-list>
       <bm-geolocation anchor="BMAP_ANCHOR_BOTTOM_LEFT" :showAddressBar="true" :autoLocation="true"></bm-geolocation>
       <div v-for="(marker, i) of markers" :key="i">
           <bm-marker :position="{lng: marker.lng, lat: marker.lat}" @click="infoWindowOpen(marker)">
-            <bm-info-window :width="250" title="个人信息" :position="{lng: marker.lng, lat: marker.lat}" :show="marker.showFlag" @close="infoWindowClose(marker)">
-              <p v-text="'姓名:'+marker.info.name"></p>
-              <p v-text="'年级:'+marker.info.grade"></p>
-              <p v-text="'院校:'+marker.info.department"></p>
-              <p v-text="'专业:'+marker.info.major"></p>
-              <p v-text="'性别:'+marker.info.sex"></p>
-              <p v-text="'工作地点:'+marker.info.workPlace"></p>
-              <p v-text="'电话:'+marker.info.tel"></p>
-              <p v-text="'薪资:'+marker.info.salary"></p>
-            </bm-info-window>
           </bm-marker>
-        </div>
+      </div>
+      <bm-info-window :width="250" title="个人信息" :position="{lng: infoWindow.lng_info, lat: infoWindow.lat_info}" :show="infoWindow.flag_info" @close="infoWindowClose" >
+        <p v-text="'姓名:'+infoWindow.info.name"></p>
+        <p v-text="'年级:'+infoWindow.info.grade"></p>
+        <p v-text="'院校:'+infoWindow.info.department"></p>
+        <p v-text="'专业:'+infoWindow.info.major"></p>
+        <p v-text="'性别:'+infoWindow.info.sex"></p>
+        <p v-text="'工作地点:'+infoWindow.info.workPlace"></p>
+        <p v-text="'电话:'+infoWindow.info.tel"></p>
+        <p v-text="'薪资:'+infoWindow.info.salary"></p>
+      </bm-info-window>
       <bm-info-window :width="250" title="经纬度：" :position="{lng: lng, lat: lat}" :show="flag">
         <p v-text="'经度:'+lng"></p>
         <p v-text="'维度:'+lat"></p>
@@ -45,7 +45,23 @@ export default {
             markers:[],
             lng:'',
             lat:'',
-            flag:false
+            flag:false,
+            infoWindow:{
+                lng_info:'',
+                lat_info:'',
+                flag_info:false,
+                info:{
+                    name:'',
+                    grade:'',
+                    department:'',
+                    major:'',
+                    sex:'',
+                    workPlace:'',
+                    tel:'',
+                    salary:''
+                }
+            },
+            ctr:false
         };
     },
     methods: {
@@ -59,26 +75,29 @@ export default {
                 let arr = item.position.split(','),
                     lng = arr[0],
                     lat = arr[1];
-                const eachMarker = { lng: lng, lat: lat,info:item,showFlag: false};
+                const eachMarker = { lng: lng, lat: lat,info:item};
 
                 that.markers.push(eachMarker);
             });
         },
-
-        infoWindowClose (e) {
-            this.flag = true;
-            e.showFlag = false;
-            console.log('infoWindowClose被调用',e);
+        infoWindowOpen (marker) {
+            this.ctr = true;
+            this.infoWindow.lng_info = marker.lng;
+            this.infoWindow.lat_info = marker.lat;
+            this.infoWindow.info = marker.info;
+            this.infoWindow.flag_info = true;
         },
-        infoWindowOpen (e) {
-            this.flag = false;
-            e.showFlag = true;
-            console.log('infoWindowOpen被调用',e);
+        infoWindowClose(){
+            this.ctr = false;
         },
         handMouseMove(e){
+            if(this.ctr){
+                return;
+            }
             this.lng = e.point.lng,
             this.lat = e.point.lat;
             this.flag = true;
+
         }
     }
 

@@ -57,7 +57,7 @@ export default {
             });
             myChart.setOption(option);
             myChart.on('click',function (params){
-                myChart.off('click');
+                // myChart.off('click');
                 const result = arr.filter(item => item.tel === params.data.tel);
 
                 _this.$emit('editActiveName','first',result[0].tel); //跳转到列表页。 注意this指向问题。用 _this = this;解决
@@ -65,7 +65,6 @@ export default {
             console.log(myChart);
             //随着屏幕大小调节图表
             window.addEventListener('resize', () => {
-                console.log('随着屏幕大小调节图表');
                 myChart.resize();
             });
         }
@@ -74,9 +73,6 @@ export default {
         console.log('chart的mounted开始');
         this.initChart();
         console.log('chart的mounted结束');
-    },
-    beforeDestroy(){
-        console.log('beforeDestroy的打印');
     }
 };
 </script>
