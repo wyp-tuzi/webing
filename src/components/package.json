@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "echarts": "^5.3.2",
+    "vue-baidu-map": "^0.18.7"
+  }
+}
