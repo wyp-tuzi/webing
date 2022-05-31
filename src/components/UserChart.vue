@@ -62,7 +62,6 @@ export default {
 
                 _this.$emit('editActiveName','first',result[0].tel); //跳转到列表页。 注意this指向问题。用 _this = this;解决
             });
-            console.log(myChart);
             //随着屏幕大小调节图表
             window.addEventListener('resize', () => {
                 myChart.resize();

@@ -1,35 +1,24 @@
 <template>
   <div class="mapbox">
-    <baidu-map class="map" @ready="handler" @mousemove="handMouseMove"  center="武汉" :zoom="12" :map-click="false">
+    <baidu-map class="map" @ready="handler" @mousemove="handMouseMove" center="武汉" :zoom="12" :map-click="false">
       <bm-scale anchor="BMAP_ANCHOR_BOTTOM_RIGHT"></bm-scale>
       <bm-navigation anchor="BMAP_ANCHOR_TOP_RIGHT"></bm-navigation>
       <bm-city-list anchor="BMAP_ANCHOR_TOP_LEFT"></bm-city-list>
       <bm-geolocation anchor="BMAP_ANCHOR_BOTTOM_LEFT" :showAddressBar="true" :autoLocation="true"></bm-geolocation>
       <div v-for="(marker, i) of markers" :key="i">
-          <bm-marker :position="{lng: marker.lng, lat: marker.lat}" @click="infoWindowOpen(marker)">
+          <bm-marker :position="{lng: marker.lng, lat: marker.lat}" @click="handClick(marker)">
           </bm-marker>
       </div>
-      <bm-info-window :width="250" title="个人信息" :position="{lng: infoWindow.lng_info, lat: infoWindow.lat_info}" :show="infoWindow.flag_info" @close="infoWindowClose" >
-        <p v-text="'姓名:'+infoWindow.info.name"></p>
-        <p v-text="'年级:'+infoWindow.info.grade"></p>
-        <p v-text="'院校:'+infoWindow.info.department"></p>
-        <p v-text="'专业:'+infoWindow.info.major"></p>
-        <p v-text="'性别:'+infoWindow.info.sex"></p>
-        <p v-text="'工作地点:'+infoWindow.info.workPlace"></p>
-        <p v-text="'电话:'+infoWindow.info.tel"></p>
-        <p v-text="'薪资:'+infoWindow.info.salary"></p>
-      </bm-info-window>
-      <bm-info-window :width="250" title="经纬度：" :position="{lng: lng, lat: lat}" :show="flag">
-        <p v-text="'经度:'+lng"></p>
-        <p v-text="'维度:'+lat"></p>
-      </bm-info-window>
+      <InfoWindow :title="title" :content="content" :lng="lng" :lat="lat" @editCtr="editCtr"/>
     </baidu-map>
   </div>
 </template>
 
 <script>
 
+import InfoWindow from '@/components/InfoWindow';
 export default {
+    components: {InfoWindow},
     props:{
         tableData:{
             type:Array,
@@ -42,25 +31,11 @@ export default {
         return {
             BMap: '',
             map: '',
-            markers:[],
+            title:'',
+            content:'',
             lng:'',
             lat:'',
-            flag:false,
-            infoWindow:{
-                lng_info:'',
-                lat_info:'',
-                flag_info:false,
-                info:{
-                    name:'',
-                    grade:'',
-                    department:'',
-                    major:'',
-                    sex:'',
-                    workPlace:'',
-                    tel:'',
-                    salary:''
-                }
-            },
+            markers:[],
             ctr:false
         };
     },
@@ -80,24 +55,23 @@ export default {
                 that.markers.push(eachMarker);
             });
         },
-        infoWindowOpen (marker) {
-            this.ctr = true;
-            this.infoWindow.lng_info = marker.lng;
-            this.infoWindow.lat_info = marker.lat;
-            this.infoWindow.info = marker.info;
-            this.infoWindow.flag_info = true;
-        },
-        infoWindowClose(){
-            this.ctr = false;
+        handClick (marker) {
+            this.title='个人信息';
+            this.lng = marker.lng;
+            this.lat = marker.lat;
+            this.content='姓名: '+marker.info.name+'<br>年级: ' + marker.info.grade + '<br>院校: ' + marker.info.department + '<br>专业: ' +marker.info.major + '<br>性别：' + marker.info.sex + '<br>工作地点：' + marker.info.workPlace + '<br>电话：' + marker.info.tel + '<br>薪资：' +marker.info.salary;
         },
         handMouseMove(e){
             if(this.ctr){
                 return;
             }
-            this.lng = e.point.lng,
-            this.lat = e.point.lat;
-            this.flag = true;
-
+            this.title='经纬度';
+            this.lng = String(e.point.lng);
+            this.lat = String(e.point.lat);
+            this.content='经度:'+ this.lng+'<br>维度:'+ this.lat;
+        },
+        editCtr(newCtr){
+            this.ctr = newCtr;
         }
     }
 
