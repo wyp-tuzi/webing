@@ -1,24 +1,17 @@
+
 <template>
   <div class="mapbox">
-    <baidu-map class="map" @ready="handler" @mousemove="handMouseMove" center="武汉" :zoom="12" :map-click="false">
+    <baidu-map class="map" @ready="handler"  center="武汉" :zoom="12" :map-click="false">
       <bm-scale anchor="BMAP_ANCHOR_BOTTOM_RIGHT"></bm-scale>
       <bm-navigation anchor="BMAP_ANCHOR_TOP_RIGHT"></bm-navigation>
       <bm-city-list anchor="BMAP_ANCHOR_TOP_LEFT"></bm-city-list>
       <bm-geolocation anchor="BMAP_ANCHOR_BOTTOM_LEFT" :showAddressBar="true" :autoLocation="true"></bm-geolocation>
-      <div v-for="(marker, i) of markers" :key="i">
-          <bm-marker :position="{lng: marker.lng, lat: marker.lat}" @click="handClick(marker)">
-          </bm-marker>
-      </div>
-      <InfoWindow :title="title" :content="content" :lng="lng" :lat="lat" @editCtr="editCtr"/>
     </baidu-map>
   </div>
 </template>
 
 <script>
-
-import InfoWindow from '@/components/InfoWindow';
 export default {
-    components: {InfoWindow},
     props:{
         tableData:{
             type:Array,
@@ -27,58 +20,78 @@ export default {
             }
         }
     },
-    data () {
-        return {
-            BMap: '',
-            map: '',
-            title:'',
-            content:'',
-            lng:'',
-            lat:'',
-            markers:[],
-            ctr:false
+    data(){
+        return{
+            flag:false
         };
     },
     methods: {
         handler ({ BMap, map }) {
-            map.enableScrollWheelZoom(true);
             this.BMap = BMap;
             this.map = map;
-            let that = this;
+            this.map.setDefaultCursor('pointer');
+            let that = this,
+                arrData = this.tableData;
+            //点击点标记打开学生信息窗口
 
-            this.tableData.forEach(function (item, index) {
+            arrData.forEach(function (item, index) {
                 let arr = item.position.split(','),
                     lng = arr[0],
-                    lat = arr[1];
-                const eachMarker = { lng: lng, lat: lat,info:item};
+                    lat = arr[1],
+                    point = new that.BMap.Point(lng, lat),
+                    marker = new that.BMap.Marker(point); // 创建标注
 
-                that.markers.push(eachMarker);
+                marker.information = item; //给marker对象添加information属性
+                that.map.addOverlay(marker); // 将标注添加到地图中
+                let informationOpts = {
+                        title : '<b>个人信息</b>' ,
+                        offset: new that.BMap.Size(0,-28) // 向上偏移
+                    },
+                    infoWindow =  new that.BMap.InfoWindow('content', informationOpts);
+
+                marker.addEventListener('click', function (e) {
+                    that.flag = true;
+                    let lng =e.point.lng,
+                        lat = e.point.lat,
+                        point = new that.BMap.Point(lng, lat),
+                        content = '姓名: ' + arrData[index].name + '<br>年级: ' + arrData[index].grade + '<br>院校: ' + arrData[index].department + '<br>专业: ' + arrData[index].major + '<br>性别：' + arrData[index].sex + '<br>工作地点：' + arrData[index].workPlace + '<br>电话：' + arrData[index].tel + '<br>薪资：' + arrData[index].salary;
+
+                    infoWindow.setContent(content);
+                    that.map.openInfoWindow(infoWindow, point);
+                    infoWindow.addEventListener('close',function (){
+                        that.flag = false; //信息窗口关闭 此时鼠标移动事件可以生效
+                    });
+                });
             });
-        },
-        handClick (marker) {
-            this.title='个人信息';
-            this.lng = marker.lng;
-            this.lat = marker.lat;
-            this.content='姓名: '+marker.info.name+'<br>年级: ' + marker.info.grade + '<br>院校: ' + marker.info.department + '<br>专业: ' +marker.info.major + '<br>性别：' + marker.info.sex + '<br>工作地点：' + marker.info.workPlace + '<br>电话：' + marker.info.tel + '<br>薪资：' +marker.info.salary;
-        },
-        handMouseMove(e){
-            if(this.ctr){
-                return;
-            }
-            this.title='经纬度';
-            this.lng = String(e.point.lng);
-            this.lat = String(e.point.lat);
-            this.content='经度:'+ this.lng+'<br>维度:'+ this.lat;
-        },
-        editCtr(newCtr){
-            this.ctr = newCtr;
+
+            //鼠标移动打开经纬度窗口
+            let positionOpts = {
+                    title : '<b>经纬度</b>' ,
+                    offset: new that.BMap.Size(0,-28) // 向上偏移
+                },
+                positionInfoWindow =  new that.BMap.InfoWindow('content', positionOpts);
+
+            that.map.addEventListener('mousemove',function (e) {
+                if(that.flag){
+                    return;
+                }
+                let lng = e.point.lng,
+                    lat = e.point.lat,
+                    content = '<div style="font-size:16px; font-weight: bold">' + '经度：' + lng + '<br>纬度：' + lat + '</div>';
+
+                positionInfoWindow.setContent(content);
+                let point = new that.BMap.Point(lng, lat);
+
+                that.map.openInfoWindow(positionInfoWindow, point); // 打开信息窗口
+            });
         }
     }
 
 };
+
 </script>
 <style scoped>
-.map {
-  height:800px;
-}
+  .map {
+    height:800px;
+  }
 </style>
