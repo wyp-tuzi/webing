@@ -1,0 +1,99 @@
+<template>
+  <div class="baidumap" id="container"></div>
+</template>
+
+<script>
+
+export default {
+    props:{
+        tableData:{
+            type:Array,
+            default() {
+                return undefined;
+            }
+        }
+    },
+    mounted() {
+        this.baiduMap();
+    },
+    data(){
+        return{
+            flag:false
+        };
+    },
+    methods: {
+        baiduMap() {
+            this.map = new BMap.Map('container');
+            this.map.centerAndZoom('武汉市', 11); // 初始化地图，设置中心点坐标和地图级别
+            this.map.enableScrollWheelZoom(true); //开启鼠标滚轮缩放
+            this.map.addControl(new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT})); //控制地图的平移和缩放的功能
+            this.map.addControl(new BMap.ScaleControl()); //地图的比例
+            this.map.setDefaultCursor('pointer');
+            this.map.setDraggingCursor('pointer');
+
+
+            let arrData = this.tableData,
+                that = this;
+
+            for (let i = 0; i < arrData.length; i++) {
+                let arr = arrData[i].position.split(','),
+                    lng = arr[0],
+                    lat = arr[1],
+                    point = new BMap.Point(lng,lat),
+                    marker = new window.BMap.Marker(point); // 创建标注
+
+                marker.information = arrData[i];
+                that.map.addOverlay(marker); // 将标注添加到地图中
+                //点击事件
+                let opts = {
+                        width : 250, // 信息窗口宽度
+                        height: 200, // 信息窗口高度
+                        title : '<b>个人信息</b>' // 信息窗口标题
+                    },
+                    infoWindow = new BMap.InfoWindow('content', opts); // 创建信息窗口对象
+
+                marker.addEventListener('click', function(e){
+                    that.flag = true;
+                    let lng = e.point.lng, //let 关键字在不同作用域，或不同块级作用域中是可以重新声明赋值的:
+                        lat = e.point.lat,
+                        point = new BMap.Point(lng,lat),
+                        personObject =e.target.information,
+                        content = '姓名: ' + personObject.name + '<br>年级: ' + personObject.grade + '<br>院校: ' + personObject.department + '<br>专业: ' + personObject.major + '<br>性别：' + personObject.sex + '<br>工作地点：' + personObject.workPlace + '<br>电话：' + personObject.tel + '<br>薪资：' + personObject.salary;
+
+                    infoWindow.setContent(content);
+                    that.map.openInfoWindow(infoWindow, point); // 打开信息窗口
+                    infoWindow.addEventListener('close',function (){
+                        that.flag = false; //信息窗口关闭 此时鼠标移动事件可以生效
+                    });
+                });
+            }
+            let positionOpts = {
+                    width: 300,
+                    height: 70,
+                    title: '<b>经纬度</b>'
+                },
+                positionInfoWindow = new BMap.InfoWindow('content', positionOpts); // 创建信息窗口对象
+
+            that.map.addEventListener('mousemove',function (e) {
+                if(that.flag){
+                    return;
+                }
+                let lng = e.point.lng,
+                    lat = e.point.lat,
+                    point = new BMap.Point(lng,lat),
+                    content = '<div style="font-size:16px; font-weight: bold">' + '经度：' + lng + '<br>纬度：' + lat + '</div>';
+
+                positionInfoWindow.setContent(content);
+                that.map.openInfoWindow(positionInfoWindow, point);
+            });
+        }
+    }
+};
+</script>
+<style  lang="less">
+  .baidumap {
+    height:100%;margin:0px;padding:0px;
+    cursor: pointer !important;
+  }
+
+</style>
